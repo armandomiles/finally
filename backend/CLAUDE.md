@@ -29,7 +29,9 @@ from app.market import PriceCache, PriceUpdate, MarketDataSource, create_market_
 
 - **`MarketDataSource`** — Abstract interface implemented by `SimulatorDataSource` and `MassiveDataSource`. Lifecycle: `start(tickers)` -> `add_ticker()` / `remove_ticker()` -> `stop()`.
 
-- **`create_market_data_source(cache)`** — Factory. Returns `MassiveDataSource` if `MASSIVE_API_KEY` is set, otherwise `SimulatorDataSource`.
+- **`create_market_data_source(cache)`** — Factory. Returns `MassiveDataSource` if `MASSIVE_API_KEY` is set, otherwise `SimulatorDataSource`. `MASSIVE_POLL_INTERVAL` (seconds, default 15) sets the Massive poll interval.
+
+- **`MassiveDataSource.mode`** — `MassiveMode.LIVE` (snapshots, Starter+ plans) or `MassiveMode.EOD` (free Basic key: switches automatically to end-of-day grouped daily bars, polled every 15 min). See `planning/MARKET_INTERFACE.md` §5.
 
 ### SSE Streaming
 

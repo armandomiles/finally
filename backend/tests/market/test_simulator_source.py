@@ -136,3 +136,20 @@ class TestSimulatorDataSource:
         # Just verify it starts and stops cleanly
         await asyncio.sleep(0.2)
         await source.stop()
+
+    async def test_ticker_case_normalized(self):
+        """Lowercase/padded tickers map to the same uppercase symbol."""
+        cache = PriceCache()
+        source = SimulatorDataSource(price_cache=cache, update_interval=10.0)
+        await source.start(["aapl", "AAPL"])
+
+        await source.add_ticker(" tsla ")
+        await source.add_ticker("TSLA")
+        assert source.get_tickers() == ["AAPL", "TSLA"]
+        assert cache.get("TSLA") is not None
+
+        await source.remove_ticker("tsla")
+        assert source.get_tickers() == ["AAPL"]
+        assert cache.get("TSLA") is None
+
+        await source.stop()

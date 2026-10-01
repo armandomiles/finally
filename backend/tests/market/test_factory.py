@@ -77,3 +77,21 @@ class TestFactory:
 
         assert isinstance(source, MassiveDataSource)
         assert source._cache is cache
+
+    def test_massive_default_poll_interval(self):
+        with patch.dict(os.environ, {"MASSIVE_API_KEY": "k"}, clear=True):
+            source = create_market_data_source(PriceCache())
+        assert source._interval == 15.0
+
+    def test_massive_poll_interval_from_env(self):
+        env = {"MASSIVE_API_KEY": "k", "MASSIVE_POLL_INTERVAL": "2.5"}
+        with patch.dict(os.environ, env, clear=True):
+            source = create_market_data_source(PriceCache())
+        assert source._interval == 2.5
+
+    def test_invalid_poll_interval_falls_back(self):
+        for bad in ("abc", "0", "-5", "nan", "inf"):
+            env = {"MASSIVE_API_KEY": "k", "MASSIVE_POLL_INTERVAL": bad}
+            with patch.dict(os.environ, env, clear=True):
+                source = create_market_data_source(PriceCache())
+            assert source._interval == 15.0, bad
